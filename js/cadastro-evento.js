@@ -1,51 +1,28 @@
-const inputNome = document.querySelector('#nome');
-const inputAtracoes = document.querySelector('#atracoes');
-const inputDescricao = document.querySelector('#descricao');
-const inputData = document.querySelector('#data');
-const inputLotacao = document.querySelector('#lotacao');
-const form = document.querySelector('.col-6');
+const formulario = document.querySelector("main div form");
 
-const BASE_URL = 'https://xp41-soundgarden-api.herokuapp.com';
+formulario.addEventListener("submit", (event) => {
+  event.preventDefault();
 
-// informando que cada campo da api irá receber os valores dos inputs
-form.onsubmit = async (evento) => {
+  const body = {};
 
-    evento.preventDefault();
+  for (i = 0; i < formulario.elements.length - 1; i++) {
+    const item = formulario.elements[i];
 
-    
+    body[item.name] =
+      item.name === "attractions" ? item.value.split(",") : item.value;
+  }
 
-    try {
-        const novoCadastro = {
-            "name": inputNome.value,
-            "poster": "https://i.imgur.com/fQHuZuv.png",
-            "attractions": inputAtracoes.value.split(','),
-            "description": inputDescricao.value,
-            "scheduled": inputData.value,
-            "number_tickets": inputLotacao.value
-        };
-
-
-
-        // informando o método utilizado e o formato a ser recebido (JSON)
-        const opcoes = {
-            method: 'POST',
-            body: JSON.stringify(novoCadastro),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        };
-
-        // fazendo requisição na api para inserir um novo evento
-        const resposta = await fetch(`${BASE_URL}/events`, opcoes);
-        const conteudoResposta = await resposta.json();
-         console.log(conteudoResposta);
-
-        alert(" Evento cadastrado com sucesso!")
-        window.location.replace("admin.html")
-        
-        //tratamento de erro
-    } catch (e) {
-        console.log(e);
-        alert("Ops! Algo deu errado no cadastro deste evento");
-    }
-};
+  fetch(`${BASE_URL}/events`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  })
+    .then(() => {
+      alert("Evento criado com sucesso");
+      window.location.replace("admin.html");
+    })
+    .catch((error) => console.log(error.message));
+});
